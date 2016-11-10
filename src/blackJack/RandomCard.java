@@ -2,126 +2,71 @@ package blackJack;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.lang.StringBuilder;
 
 public class RandomCard {
 
-	Random random = new Random();
-	
-	ArrayList<String> cardsInPlay = new ArrayList<String>();
-	
-	private String deckNumber,colorOfCard,cardName;
-	private int valueOfCard;
-	
-	
-	public String getDeckNumber() {
-		return deckNumber;
-	}
+	private static Random random = new Random();
+	public static ArrayList<String> cardsPlayed = new ArrayList<String>();
+	private static StringBuilder cardName = new StringBuilder();
 
-	public int getValueOfCard() {
-		return valueOfCard;
-	}
-
-	public String getColorOfCard() {
-		return colorOfCard;
-	}
-
-	public void setColorOfCard(String colorOfCard) {
-		this.colorOfCard = colorOfCard;
-	}
-
-	public void setValueOfCard(int valueOfCard) {
-		this.valueOfCard = valueOfCard;
-	}
-
-	public void setDeckNumber(String deckNumber) {
-		this.deckNumber = deckNumber;
-	}
-
-	public String getCardName() {
-		return cardName;
-	}
-
-	public void setCardName(String cardName) {
-		this.cardName = cardName;
-	}
-
-	public String getRandomCard(){
-		
-		setDeckNumber(deck());
-		setColorOfCard(cardColor());
-		setValueOfCard(cardValue());
-	
-		setCardName(getDeckNumber()+getColorOfCard()+getValueOfCard());
-		checkCard(cardName);
-		
-		return cardName;
-}
-	
-	public String checkCard(String card){
-		cardsInPlay.add("");
-		
-		for (String s : cardsInPlay) {
-			System.out.println(s);
-				
-			if (s.equalsIgnoreCase(card)){
-			}
-			else {
-				cardsInPlay.add(card);		
-				return cardName;
-				
-			}
+	public static String getRandomCard() {
+		if (cardsPlayed.size() >= 94) {
+			cardsPlayed.clear();
 		}
-
-		return cardName;
+		cardName.delete(0, 5);
+		generateRandomCard();
+		checkCard();
+		cardsPlayed.add(cardName.toString());
+		return cardName.delete(0, 1).toString();
 	}
 
-	 private String cardColor() {
-		int value = getRandomInt(1,4);
-		
+	private static void checkCard() {
+		while (cardsPlayed.contains(cardName)) {
+			cardName.delete(0, 5);
+			generateRandomCard();
+		}
+	}
+
+	private static void generateRandomCard() {
+		cardName.append(getRandomDeck()).append(getRandomCardColor()).append(getRandomCardValue());
+	}
+
+	private static char getRandomCardColor() {
+		int value = getRandomInt(1, 4);
+
 		/*
-		 * H = Hearts 
-		 * D = Diamond
-		 * C = Clubs
-		 * S = Spades
+		 * H = Hearts D = Diamond C = Clubs S = Spades
 		 */
-		
-		switch (value){
+
+		switch (value) {
 		case 1:
-			return "H";
+			return 'H';
 		case 2:
-			return "D";
+			return 'D';
 		case 3:
-			return "C";
+			return 'C';
 		case 4:
-			return "S";
+			return 'S';
 		default:
-			
-			break;
-		
+			return '!';
 		}
-		
-		return null;
 	}
 
-	private int cardValue() {
-		int value = getRandomInt(1, 13);
-		return value;
-		}
-
-	private String deck() {
-		
-		 int value = getRandomInt(1,2);
-		 if(value == 1){
-			 return "1";
-		 }
-		 else { 
-			 return "2";
-		 }
-		 
+	private static int getRandomCardValue() {
+		return getRandomInt(1, 13);
 	}
-	 public int getRandomInt(int min,int max){
-		 
-		 return random.nextInt(max-min)+min;
-		
+
+	private static int getRandomDeck() {
+		int value = getRandomInt(1, 2);
+		if (value == 1) {
+			return 1;
+		} else {
+			return 1;
+		}
+	}
+
+	private static int getRandomInt(int min, int max) {
+		return random.nextInt(max - min + 1) + min;
 	}
 }
