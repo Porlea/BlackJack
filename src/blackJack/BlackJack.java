@@ -1,248 +1,479 @@
 package blackJack;
 
-
-import javax.imageio.ImageIO;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.ImageIcon;
-import java.util.ArrayList;
-import java.util.Date;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
+/**
+ * 
+ * @author Nicklas This is the main class that is handling everything whit
+ *         grafics, buttons actionLiseners and starts the game.
+ */
 public class BlackJack {
 
-	/**
-	 * 
-	 */
-	static ArrayList<String> cardsOnTabelForPlayer = new ArrayList<String>();
-	static RandomCard rc = new RandomCard();
-	static Date date = new Date();
+	static JFrame frame;
+	static ArrayList<Integer> playersHand = new ArrayList<Integer>();
+	static ArrayList<Integer> dealersHand = new ArrayList<Integer>();
+	static ArrayList<JLabel> cardsOnTabel = new ArrayList<JLabel>();
+	static PopupMessage mess = new PopupMessage();
+
+	static Player player = new Player();
+	static Betting bet;
+
 	private static int windowWidth = 1200;
 	private static int windowHeight = 600;
 	static JLabel numberOfCards;
-	static JButton btnRules = new JButton("Rules");
-	static JLabel playerCard1 = new JLabel("playerCard1");
-	static JLabel playerCard2 = new JLabel("playerCard2");
-	static JLabel dealerLabel1 = new JLabel("dealerCard1");
-	static JLabel dealerLabel2 = new JLabel("dealerCard2");
-	static JFrame frame;
-	private static int playerValue = 0;
-	private int dealerValue = 0;
-	private static int x = windowWidth - 450;
-	private static int y = windowHeight - 330;
-	private static int dealerX = windowWidth - 430;
-	private static int dealerY = windowHeight - 575;
-	private static final JButton btnTest = new JButton("test");
-	
-	static JButton startGameButton = new JButton("Start Game");		
-	
-	static JButton hitButton = new JButton("Hit");
-	static JButton stayButton = new JButton("Stay");
-	static JLabel timeDisplay = new JLabel("TimeDisplay");
-	JLabel playersName = new JLabel();		
+	static JLabel dealerCards;
+	static JLabel score;
+	static JLabel TimeDateLabel;
+	static JLabel moneyLabel;
+	static JLabel nameLabel;
+	static JLabel dealerSecondCard;
+
+	private static int playerValue;
+	private static int dealerValue;
+	private static int x = windowWidth - 820;
+	private static int y = windowHeight - 280;
+	private static int dealerX = windowWidth - 840;
+	private static int dealerY = windowHeight - 550;
+	private static int cardCounter = 0;
+	static private int numberOfDecks = 2;
+	static Deck deck = new Deck(numberOfDecks);
+
 	/**
-	 * Launch the application.
+	 * main method: This method will start the game.
+	 * 
+	 * @param args start the game.
+	 * 
 	 */
 	public static void main(String[] args) {
-		
-					frame = new JFrame();
-					frame.setResizable(false);
-					frame.setTitle("Black Jack");
-					frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-					frame.setBounds(100, 100, getWindowWidth(), getWindowHeight());
-					try {
-						frame.setContentPane((new JLabel(new ImageIcon(ImageIO.read(new File("pics/BlackJackBackground.png"))))));	
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-		
-					stayButton.setBounds(353, 494, 89, 23);
-					frame.add(stayButton);
+		window();
+		bettingPanel();
+		player.name();
+		bet = new Betting();
+		bet.betChoice();
 
-					hitButton.setBounds(217, 494, 89, 23);
-					frame.add(hitButton);
-					
-					btnRules.setBounds(485, 494, 89, 23);
-					frame.add(btnRules);
-
-					frame.setVisible(true);
-					
-		Thread thread = new Thread(null);
-		thread.start();
-
-		hitButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				numberOfCards = new JLabel();
-				frame.add(numberOfCards);
-				drawCard();
-				WinOrLose(playerValue);
-			}
-		});
-		
-		btnRules.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-			JOptionPane.showMessageDialog(null, "Help");	
-
-			}
-		});
-	
-		startGameButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			
-			}
-		});
-		startGameButton.setBounds(10, 186, 75, 102);
-		frame.add(startGameButton);
-		btnTest.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-		btnTest.setBounds(158, 210, 89, 23);
-		
-		frame.add(btnTest);
 	}
-		
+
+	// Getters and Setters
 
 	/**
-	 * Create the frame.
+	 * Gets dealerY and return dealerY
+	 * 
+	 * @return dealerY gets the Y position of card
 	 */
-	public BlackJack() {
-
-				
-		startGame(playerValue, dealerValue);
-		
-		stayButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-
-				
-				
-//				rc.getRandomCard();
-//				dealerValue += rc.getValueOfCard();
-//				dealerLabel2.setIcon(new ImageIcon("pics/" + rc.getColorOfCard() + rc.getValueOfCard() + ".png"));
-//				dealerLabel2.setBounds(370, 25, 100, 150);
-//				contentPane.add(dealerLabel2);
-				int counter = 0;
-				while  (counter <3) {//(dealerValue <17 &&
-					//numberOfCards = new JLabel();
-					//contentPane.add(numberOfCards);
-					dealerDrawCard();	
-					counter++;
-					dealerValue += rc.getValueOfCard();			
-				}
-				
-				if (dealerValue == 21) {
-					JOptionPane.showMessageDialog(null,"dealer wins");
-					
-				}
-				
-			}
-		});
-
+	public static int getDealerY() {
+		return dealerY;
 	}
 
+	/**
+	 * Sets DealerY
+	 * 
+	 * @param dealerY sets the Y position of card
+	 */
+	public static void setDealerY(int dealerY) {
+		BlackJack.dealerY = dealerY;
+	}
+
+	/**
+	 * Gets dealerX and return dealerX
+	 * 
+	 * @return dealerX gets the Y position of card
+	 */
+	public static int getDealerX() {
+		return dealerX;
+	}
+
+	/**
+	 * Sets DealerX
+	 * 
+	 * @param dealerX sets the Y position of card
+	 */
+	public static void setDealerX(int dealerX) {
+		BlackJack.dealerX = dealerX;
+	}
+
+	/**
+	 * Gets DealerValue
+	 * 
+	 * @return dealerValue gets the total handValue for the dealer
+	 */
+	public static int getDealerValue() {
+		return dealerValue;
+	}
+
+	/**
+	 * Sets the dealerValue
+	 * 
+	 * @param dealerValue sets the total handValue for the dealer
+	 */
+	public static void setDealerValue(int dealerValue) {
+		BlackJack.dealerValue = dealerValue;
+	}
+
+	/**
+	 * Gets the game window width
+	 * 
+	 * @return windowWidth gets the width of the game window
+	 */
 	public static int getWindowWidth() {
 		return windowWidth;
 	}
 
+	/**
+	 * Gets the Game window Height
+	 * 
+	 * @return windowHeight gets the height of the game window
+	 */
 	public static int getWindowHeight() {
 		return windowHeight;
 	}
 
-	
-	
-	private static void startGame(int playerValue, int dealerValue) {
-		
-		cardsOnTabelForPlayer.add(rc.getRandomCard());
-		
-		
-		playerCard1.setIcon(new ImageIcon("pics/" + rc.getColorOfCard() + rc.getValueOfCard() + ".png"));
-		playerCard1.setBounds(380, 280, 100, 150);
-		frame.add(playerCard1);
-		
-		playerValue += rc.getValueOfCard();
-
-		cardsOnTabelForPlayer.add(rc.getRandomCard());
-		playerCard2.setIcon(new ImageIcon("pics/" + rc.getColorOfCard() + rc.getValueOfCard() + ".png"));
-		playerCard2.setBounds(350, 270, 100, 150);
-		frame.add(playerCard2);
-		
-		playerValue += rc.getValueOfCard();
-
-		rc.getRandomCard();
-		dealerLabel1.setIcon(new ImageIcon("pics/" + rc.getColorOfCard() + rc.getValueOfCard() + ".png"));
-		dealerLabel1.setBounds(400, 35, 100, 150);
-		frame.add(dealerLabel1);
-	}
-	public int getPlayerValue() {
-		return playerValue;
+	/**
+	 * Gets the number on CardCounter
+	 * 
+	 * @return cardCounter gets the CardCounter and tells the program when to shuffle
+	 */
+	public static int getCardCounter() {
+		return cardCounter;
 	}
 
-	public void setPlayerValue(int playerValue) {
-		this.playerValue = playerValue;
+	/**
+	 * Sets the cardCounter.
+	 * 
+	 * @param cCounter sets the CardCounter 
+	 */
+	public static void setCardCounter(int cCounter) {
+		cardCounter = cCounter;
 	}
 
-	public int getDealerValue() {
-		return dealerValue;
+	// Methods
+
+	private static void bettingPanel() {
+		JPanel scorePanel = new JPanel();
+
+		scorePanel.setBounds(1000, 0, 300, 100);
+		scorePanel.setLayout(null);
+
+		moneyLabel = new JLabel();
+		moneyLabel.setBounds(100, 0, 50, 30);
+
+		nameLabel = new JLabel();
+		nameLabel.setBounds(10, 0, 100, 30);
+
+		frame.add(scorePanel);
+		scorePanel.add(nameLabel);
+		scorePanel.add(moneyLabel);
+
 	}
 
-	public void setDealerValue(int dealerValue) {
-		this.dealerValue = dealerValue;
-	}
+	private static void window() {
 
-	public int getDealerY() {
-		return dealerY;
-	}
+		frame = new JFrame();
+		frame.setResizable(false);
+		frame.setTitle("Black Jack");
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setBounds(0, 0, getWindowWidth(), getWindowHeight());
+		frame.setLocationRelativeTo(null);
 
-	public void setDealerY(int dealerY) {
-		this.dealerY = dealerY;
-	}
+		TimeDateLabel = new JLabel();
+		TimeDateLabel.setBounds(1030, 450, 200, 200);
 
-	public int getDealerX() {
-		return dealerX;
-	}
+		try {
 
-	public void setDealerX(int dealerX) {
-		this.dealerX = dealerX;
-	}
+			frame.setContentPane((new JLabel(new ImageIcon(ImageIO.read(new File("pics/BlackJackBackground.png"))))));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 
-	public static void WinOrLose(int playerValue) {
-		
-		if (playerValue > 21) {
+		buttons();
 
-			JOptionPane.showMessageDialog(null, "You got Busted");
-			String answer = JOptionPane.showInputDialog("Play again? Y/N");
-			if (answer.equalsIgnoreCase("y")) {
-				main(null);
-			} else {
-				System.exit(0);
+		frame.setVisible(true);
+		frame.add(TimeDateLabel);
+
+		SwingWorker<Void, Void> timeAndDateThread = new SwingWorker<Void, Void>() {
+
+			@Override
+			protected Void doInBackground() throws Exception {
+				while (true) {
+					try {
+						TimeDateLabel.setText(TimeDate.getTime() + "  " + TimeDate.getDate());
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+					}
+				}
 			}
-		}	
+		};
+		timeAndDateThread.execute();
 	}
-	public static void drawCard(){
-		
+
+	private static void buttons() {
+
+		JButton rulesButton = new JButton("Rules");
+		JButton startGameButton = new JButton("Start Game");
+		JButton hitButton = new JButton("Hit");
+		JButton standButton = new JButton("Stand");
+
+		standButton.setBounds(353, 494, 89, 23);
+		frame.add(standButton);
+
+		hitButton.setBounds(217, 494, 89, 23);
+		frame.add(hitButton);
+
+		rulesButton.setBounds(485, 494, 89, 23);
+		frame.add(rulesButton);
+
+		startGameButton.setBounds(10, 186, 100, 120);
+		frame.add(startGameButton);
+
+		hitButton.setEnabled(false);
+		standButton.setEnabled(false);
+
+		rulesButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				mess.rulesMessage();
+
+			}
+		});
+
+		startGameButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+
+				hitButton.setEnabled(true);
+				standButton.setEnabled(true);
+
+				startButtonLogic();
+				startGameButton.setEnabled(false);
+			}
+		});
+
+		standButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				dealerSecondCard.setVisible(false);
+				if (playerValue < 21) {
+					standButton.setEnabled(false);
+					hitButton.setEnabled(false);
+
+				}
+
+				standButtonLogic();
+				startGameButton.setEnabled(false);
+				standButton.setEnabled(true);
+				hitButton.setEnabled(true);
+			}
+
+		});
+
+		/**
+		 * It will draw a random card and and add value to players hand it will
+		 * print a card
+		 */
+
+		hitButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (playerValue > 21) {
+
+					hitButton.setEnabled(false);
+					standButton.setEnabled(false);
+				} else {
+					hitButtonLogic();
+
+					startGameButton.setEnabled(false);
+				}
+				if (playerValue > 21) {
+
+					hitButton.setEnabled(false);
+					standButton.setEnabled(false);
+				}
+			}
+		});
+
+	}
+
+	/**
+	 * Checks if the value for the cards value is 11-13 then change it to 10 If
+	 * the card value is 1 change it to 11
+	 * 
+	 * @param value
+	 *            the value of the card.
+	 * @return The new card value. Between 2-11.
+	 */
+
+	protected static int cardsBlackJackValue(int value) {
+
+		if (value < 14 && value > 10) {
+			return 10;
+		} else if (value == 1) {
+
+			return 11;
+		} else {
+			return value;
+		}
+
+	}
+
+	private static void WinOrLose() {
+		boolean value;
+		if (playerValue > 21) {
+			value = mess.bustedMessage();
+			messageValue(value);
+		} else if (dealerValue == 21) {
+			value = mess.dealerWinMessage();
+			messageValue(value);
+		} else if (dealerValue > 21) {
+			value = mess.playerWinMessage();
+			bet.winMoney();
+			messageValue(value);
+		} else if (playerValue < dealerValue) {
+			value = mess.dealerWinMessage();
+			messageValue(value);
+		} else if (playerValue == dealerValue) {
+			value = mess.drawMessage();
+			messageValue(value);
+		} else if (dealerValue > 16 && (playerValue > dealerValue)) {
+			value = mess.playerWinMessage();
+			bet.winMoney();
+			messageValue(value);
+		}
+
+	}
+
+	private static void messageValue(boolean value) {
+		if (!value) {
+			System.exit(0);
+		} else {
+			bet.betChoice();
+			for (JLabel l : cardsOnTabel) {
+				frame.remove(l);
+				frame.revalidate();
+				frame.repaint();
+			}
+			cardsOnTabel.clear();
+
+			restartGame();
+		}
+	}
+
+	private static void restartGame() {
+		x = windowWidth - 820;
+		y = windowHeight - 280;
+		setDealerX(windowWidth - 840);
+		setDealerY(windowHeight - 550);
+
+		cardsOnTabel.clear();
+		startButtonLogic();
+	}
+
+	private static void hitButtonLogic() {
+
+		numberOfCards = new JLabel();
+		frame.add(numberOfCards);
 		x -= 30;
 		y -= 10;
 
-		cardsOnTabelForPlayer.add(rc.getRandomCard());
-		numberOfCards.setIcon(new ImageIcon("pics/" + rc.getColorOfCard() + rc.getValueOfCard() + ".png"));
+		shufflingTime();
+		numberOfCards.setIcon(new ImageIcon("pics/" + deck.drawCard() + ".png"));
 		numberOfCards.setBounds(x, y, 100, 150);
-		frame.add(numberOfCards);
-	}
-	public void dealerDrawCard(){
-		dealerX += 30;
-		dealerY += 10;
+		cardsOnTabel.add(numberOfCards);
+		frame.add(cardsOnTabel.get(cardsOnTabel.size() - 1));
 
-		cardsOnTabelForPlayer.add(rc.getRandomCard());
-		numberOfCards.setIcon(new ImageIcon("pics/" + rc.getColorOfCard() + rc.getValueOfCard() + ".png"));
-		numberOfCards.setBounds(x, y, 100, 150);
-		//contentPane.add(numberOfCards);
+		playerValue += cardsBlackJackValue(deck.getCardValue());
+		playersHand.add(cardsBlackJackValue(deck.getCardValue()));
+
+		while (playerValue > 21) {
+
+			for (int i = 0; i < playersHand.size(); i++) {
+
+				if (playersHand.get(i) == 11) {
+
+					playersHand.set(i, 1);
+					playerValue = playerValue - 10;
+				}
+			}
+
+			break;
+		}
+		WinOrLose();
 	}
+
+	private static void standButtonLogic() {
+
+		while (dealerValue < 17) {
+
+			dealerCards = new JLabel();
+			frame.add(dealerCards);
+
+			dealerX -= 30;
+			dealerY -= 10;
+
+			shufflingTime();
+			dealerCards.setIcon(new ImageIcon("pics/" + deck.drawCard() + ".png"));
+			dealerCards.setBounds(dealerX, dealerY, 100, 150);
+
+			dealerValue += cardsBlackJackValue(deck.getCardValue());
+			dealersHand.add(cardsBlackJackValue(deck.getCardValue()));
+			cardsOnTabel.add(dealerCards);
+
+			while (dealerValue > 21) {
+
+				for (int i = 0; i < dealersHand.size(); i++) {
+
+					if (dealersHand.get(i) == 11) {
+
+						dealersHand.set(i, 1);
+						dealerValue = dealerValue - 10;
+					}
+
+				}
+
+				break;
+
+			}
+
+		}
+		WinOrLose();
+	}
+
+	private static void startButtonLogic() {
+		playerValue = 0;
+		dealerValue = 0;
+
+		hitButtonLogic();
+		hitButtonLogic();
+
+		dealerCards = new JLabel();
+		dealerSecondCard = new JLabel();
+		frame.add(dealerCards);
+
+		shufflingTime();
+		dealerCards.setIcon(new ImageIcon("pics/" + deck.drawCard() + ".png"));
+
+		dealerCards.setBounds(getDealerX(), getDealerY(), 100, 150); // 420,35
+		frame.add(dealerCards);
+
+		setDealerValue(getDealerValue() + cardsBlackJackValue(deck.getCardValue()));
+
+		frame.add(dealerSecondCard);
+		dealerSecondCard.setIcon(new ImageIcon("pics/cardBackground.png"));
+		dealerSecondCard.setBounds(getDealerX() - 30, getDealerY() - 10, 100, 150); // 400,25
+
+		cardsOnTabel.add(dealerCards);
+		cardsOnTabel.add(dealerSecondCard);
+
+	}
+
+	private static void shufflingTime() {
+		setCardCounter(getCardCounter() + 1);
+
+		if (getCardCounter() > (51 * numberOfDecks)) {
+			mess.shuffleTime();
+			deck.shuffle();
+			setCardCounter(0);
+		}
+
+	}
+
 }
-
-// startknappen genom att skicka till hit action. 
-// MvC model view controller
